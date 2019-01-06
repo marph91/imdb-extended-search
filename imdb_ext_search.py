@@ -5,6 +5,7 @@
 
 import argparse
 import csv
+import json
 import random
 import sys
 
@@ -14,17 +15,22 @@ import requests
 def parse_args(args):
     """Parse input arguments.
 
-    >>> parse_args(["abc", "--metascore", "0", "100"])
-    Namespace(csv=None, metascore=[0, 100], random=None, sort=None, url='abc')
+    >>> parse_args(["--url", "abc", "--metascore", "0", "100"])
+    Namespace(csv=None, json=None, metascore=[0, 100], random=None, sort=None, url='abc')
+    >>> parse_args(["--url", "abc", "--json", "abc"])
+    Traceback (most recent call last):
+    ...
+    SystemExit: 2
     >>> parse_args([])
     Traceback (most recent call last):
     ...
     SystemExit: 2
     """
     parser = argparse.ArgumentParser(description="IMDB")
-    parser.add_argument("url", type=str, help="full url for imdb request")
-    # TODO: Allow to add request parameters by passing a dict.
-    #       This would be an alternative to provide the full url.
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--url", type=str, help="full url for imdb request")
+    group.add_argument(
+        "--json", type=str, help="json parameters for the request")
     parser.add_argument(
         "--metascore", type=int, nargs=2, metavar=("min", "max"),
         help="exclude movies with a metascore outside of this range")
@@ -109,8 +115,15 @@ def main():
     """Main control function."""
     args = parse_args(sys.argv[1:])
 
-    url = args.url if args.url else "https://www.imdb.com/search/title"
-    req = requests.get(url)
+    if args.url:
+        url = args.url
+        params = None
+    else:
+        url = "https://www.imdb.com/search/title"
+        with open(args.json) as infile:
+            params = json.load(infile)
+
+    req = requests.get(url, params=params)
     if req.status_code != 200:
         print("Request not successful (status code: %d)" % req.status_code)
         return

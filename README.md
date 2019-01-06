@@ -11,21 +11,31 @@ This is a python script for extending the IMDB advanced title search by:
 
 ## Usage
 
-Firstly issue a search on the site <https://www.imdb.com/search/title>. Then copy the url of the resulting page. Alternatively the base url can be extended by the query string directly. Finally insert the url string as first argument of the python function call. Further arguments can be used to filter movies out of the original list. Result is a list of tuples, containing name, metascore and link to IMDB of each movie.
+There are two options to use this script:
+
+  1. Issue a search on the site <https://www.imdb.com/search/title>. Then copy the url of the resulting page. Alternatively the base url can be extended by the query string directly. Finally insert the url string as optional argument (`--url`).
+  2. Create a json file with parameters and insert it as optional argument (`--json`). The parameters get sent to <https://www.imdb.com/search/title> with a get request.
+
+The options `--url` and `--json` are mutually exclusive, i. e. exactly one of them has to be given. Further arguments can be used to filter movies out of the original list. Result is a list of tuples, containing name, metascore and link to IMDB of each movie.
 
 ### Examples
 
-  - Get 10 random movies from a previous search:
+  - Get 10 random movies via query string:
 ```bash
-python3 imdb_ext_search.py "https://www.imdb.com/search/title?title_type=feature&count=250" --random 10
+python3 imdb_ext_search.py --url "https://www.imdb.com/search/title?title_type=feature&count=250" --random 10
+```
+
+  - Get 10 random movies via JSON parameters:
+```bash
+python3 imdb_ext_search.py --json "example_params.json" --random 10
 ```
 
   - Only show movies with metascore equal or higher than 80 and order the movies descending by metascore:
 ```bash
-python3 imdb_ext_search.py "https://www.imdb.com/search/title?title_type=feature&count=250" --metascore 80 100 --sort desc
+python3 imdb_ext_search.py --url "https://www.imdb.com/search/title?title_type=feature&count=250" --metascore 80 100 --sort desc
 ```
 
   - Save the movie list as csv file:
 ```bash
-python3 imdb_ext_search.py "https://www.imdb.com/search/title?title_type=feature&count=250" --csv my_movies.csv
+python3 imdb_ext_search.py --url "https://www.imdb.com/search/title?title_type=feature&count=250" --csv my_movies.csv
 ```
